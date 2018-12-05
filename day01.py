@@ -22,4 +22,5 @@ if __name__ == '__main__':
     with open('data/01.txt') as f:
         data = [int(x.rstrip('\n')) for x in f.readlines()]
 
-    print(find_first_repeat_slow(data))
+    print(sum(data))
+    print(find_first_repeat(data))
