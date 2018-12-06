@@ -3,13 +3,18 @@
 
 from collections import defaultdict
 from itertools import product
+import re
 
 def parse(data):
+    id_pattern = re.compile(r'#\d*')
+    coords_pattern = re.compile(r'\d*,\d*')
+    size_pattern = re.compile(r'\d*x\d*')
     def line_parse(line):
-        key, rest = line.split(' @ ')
-        coords, size = rest.split(': ')
-        coords = tuple(int(x) for x in coords.split(','))
-        size = tuple(int(x) for x in size.split('x'))
+        key = int(id_pattern.search(line).group().lstrip('#'))
+        coords = tuple(int(x) for x in \
+                coords_pattern.search(line).group().split(','))
+        size = tuple(int(x) for x in \
+                size_pattern.search(line).group().split('x'))
         return key, coords, size
 
     return { key : [coords, size] \
