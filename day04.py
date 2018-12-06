@@ -95,10 +95,3 @@ if __name__ == '__main__':
             if value == max_val:
                 break
         print(k * minute)
-
-    #   part 2
-
-
-
-
-
