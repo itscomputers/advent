@@ -69,11 +69,11 @@ def best_guard(guards):
     key_two = None
     max_val = 0
     for k, v in guards.items():
-        s = sum(v.values())
-        if s > max_sum:
-            max_sum = s
-            key_one = k
         if len(v.values()) > 0:
+            s = sum(v.values())
+            if s > max_sum:
+                max_sum = s
+                key_one = k
             m = max(v.values())
             if m > max_val:
                 max_val = m
