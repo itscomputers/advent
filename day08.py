@@ -5,7 +5,7 @@
 ##############################
 
 def node_sum(data, problem):
-    [c, m], data = data[:2], data[2:]
+    [c, m, *data] = data
     if c == 0:
         return data[m:], sum(data[:m])
 
