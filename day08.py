@@ -1,7 +1,6 @@
 
 #   advent/2018/day08.py
 
-
 ##############################
 
 def node_sum(data, problem):
