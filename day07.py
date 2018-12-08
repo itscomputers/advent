@@ -32,18 +32,19 @@ def parse(data):
 
 ##############################
 
-alphabet_delay = {x : i+1 for i, x in enumerate(string.ascii_uppercase)}
-
-def delay(val, offset):
-    return alphabet_delay[val] + offset
+alphabet = {x : i+1 for i, x in enumerate(string.ascii_uppercase)}
 
 ##############################
 
-def process(queue, ready, completed,
-        workers, free_workers, offset, time_elapsed):
+def process(queue, completed, time_elapsed,
+        ready, workers, free_workers, 
+        delay, offset):
     while free_workers > 0 and ready != []:
         val = ready.pop(0)
-        workers.append([delay(val, offset), val])
+        if delay:
+            workers.append([alphabet[val] + offset, val])
+        else:
+            workers.append([0, val])
         free_workers -= 1
     workers.sort()
 
@@ -61,28 +62,34 @@ def process(queue, ready, completed,
         ready.sort()
     del queue[val]
     
-    return queue, ready, completed, workers, free_workers, time_elapsed
+    return queue, completed, time_elapsed, ready, workers, free_workers
 
 ##############################
 
-def order(tree, num_workers, offset):
-    queue = tree
+def order(queue, num_workers=1, delay=False, offset=0):
     completed = ''
     workers = []
     free_workers = num_workers
     time_elapsed = 0
     ready = sorted([x for x in queue if queue[x].parents == []])
     while queue != dict():
-        queue, ready, completed, workers, free_workers, time_elapsed = \
-                process(queue, ready, completed, 
-                        workers, free_workers, offset, time_elapsed)
-    return time_elapsed 
+        queue, completed, time_elapsed, ready, workers, free_workers = \
+                process(queue, completed, time_elapsed,
+                        ready, workers, free_workers, 
+                        delay, offset)
+    return completed, time_elapsed 
 
 #############################
 
 if __name__ == '__main__':
 
     with open('data/07.txt') as f:
-        tree = parse(f.readlines())
+        queue = parse(f.readlines())
+    completed, time_elapsed = order(queue)
+    print('ordering for single worker, no delay: {}'.format(completed))
 
-    print(order(tree, 6, 60))
+    with open('data/07.txt') as f:
+        queue = parse(f.readlines())
+    completed, time_elapsed = order(queue, num_workers=6, delay=True, offset=60)
+    print('ordering for 6 workers, 60sec delay: {}'.format(completed))
+    print('time elapsed: {} seconds'.format(time_elapsed))
