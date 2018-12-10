@@ -27,8 +27,8 @@ if __name__ == '__main__':
 
     with open('data/09.txt') as f:
         s = f.read()
-        num_players = int(re.search(r'\d* players', s).group().split(' ')[0])
-        max_value = int(re.search(r'\d* points', s).group().split(' ')[0])
+        num_players = int(re.search(r'(\d*) players', s).group(1))
+        max_value = int(re.search(r'(\d*) points', s).group(1))
 
     print(game(num_players, max_value))
     print(game(num_players, 100 * max_value))
