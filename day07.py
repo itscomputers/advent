@@ -22,11 +22,11 @@ class Node:
 
 def parse(data, delay=0):
     nodes = dict()
-    parent_pattern = re.compile(r'[A-Z] must be finished')
-    child_pattern = re.compile(r'[A-Z] can begin')
+    parent_pattern = re.compile(r'([A-Z]) must be finished')
+    child_pattern = re.compile(r'([A-Z]) can begin')
     for line in data:
-        p = parent_pattern.search(line).group().split(' ')[0]
-        c = child_pattern.search(line).group().split(' ')[0]
+        p = parent_pattern.search(line).group(1)
+        c = child_pattern.search(line).group(1)
         if p not in nodes:
             nodes[p] = Node(p, delay)
         if c not in nodes:
