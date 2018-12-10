@@ -26,21 +26,20 @@ def next_day(date):
 ##############################
 
 def parse(data):
-    shift_pattern = re.compile(r'Guard #\d*')
+    shift_pattern = re.compile(r'Guard #(\d*)')
     date_pattern = re.compile(r'\d{4}-\d{2}-\d{2}')
-    time_pattern = re.compile(r'\d{2}:\d{2}')
+    time_pattern = re.compile(r'(\d{2}):(\d{2})')
     
     guard_data = dict()
     for line in data:
         date = date_pattern.search(line).group()
-        hour, minute = [int(x) for x in \
-                time_pattern.search(line).group().split(':')]
+        hour, minute = [int(x) for x in time_pattern.search(line).group(1,2)]
         if hour == 23:
             date = next_day(date)
         if date not in guard_data:
             guard_data[date] = {'id' : '', 'asleep' : [], 'awake' : []}
         if shift_pattern.search(line):
-            guard_id = int(shift_pattern.search(line).group().lstrip('Guard #'))
+            guard_id = int(shift_pattern.search(line).group(1))
             guard_data[date]['id'] = guard_id
         elif 'falls asleep' in line:
             guard_data[date]['asleep'].append(minute)
