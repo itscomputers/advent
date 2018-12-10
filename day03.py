@@ -6,15 +6,15 @@ from itertools import product
 import re
 
 def parse(data):
-    id_pattern = re.compile(r'#\d*')
-    coords_pattern = re.compile(r'\d*,\d*')
-    size_pattern = re.compile(r'\d*x\d*')
+    id_pattern = re.compile(r'#(\d*)')
+    coords_pattern = re.compile(r'(\d*),(\d*)')
+    size_pattern = re.compile(r'(\d*)x(\d*)')
     def line_parse(line):
-        key = int(id_pattern.search(line).group().lstrip('#'))
+        key = int(id_pattern.search(line).group(1))
         coords = tuple(int(x) for x in \
-                coords_pattern.search(line).group().split(','))
+                coords_pattern.search(line).group(1,2))
         size = tuple(int(x) for x in \
-                size_pattern.search(line).group().split('x'))
+                size_pattern.search(line).group(1,2))
         return key, coords, size
 
     return { key : [coords, size] \
@@ -53,9 +53,8 @@ def process_claims(data):
 if __name__ == '__main__':
 
     with open('data/03.txt') as f:
-        data = f.readlines()
+        data = parse(f.readlines())
 
-    data = parse(data)
     conflict_free, claims = process_claims(data)
     print(sum(1 for ids in claims.values() if len(ids) > 1))
     print(conflict_free[0])
