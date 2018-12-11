@@ -12,12 +12,13 @@ def power(ser, x, y):
 ##############################
 
 def grid(ser):
-    "s: serial number"
+    "ser: serial number"
     return {t : power(ser, *t) for t in product(range(1,301), range(1, 301))}
 
 ##############################
 
 def subgrid(g, d, x, y, PRINT=False):
+    "g: grid | d: dimension/size | x, y: coordinates"
     s = 0
     for j in range(y, y+d):
         for i in range(x, x+d):
