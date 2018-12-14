@@ -9,6 +9,9 @@ class Recipe:
         self.val = val
         self.next = None
         self.prev = None
+
+    def __repr__(self):
+        return format(self.val)
     
     def advance(self):
         r = self
@@ -34,10 +37,9 @@ class Queue:
         self.length = 2
 
     def __repr__(self):
-        current = tuple(r.val for r in self.recipes)
         return '{}\n{}\n{}'.format(
             'length: {}'.format(self.length),
-            'current recipes: {}, {}'.format(*current),
+            'current recipes: {}, {}'.format(*self.recipes),
             'last: ...{}'.format(self.nth_last(11)))
 
     def advance(self):
@@ -48,16 +50,15 @@ class Queue:
         else:
             vals = [num]
             self.length += 1
+
         for val in vals:
             r = Recipe(val)
-
             r.next = self.first
             self.first.prev = r
-
             self.last.next = r
             r.prev = self.last
-            
             self.last = r
+
         self.recipes = tuple(r.advance() for r in self.recipes)
 
     def nth_last(self, num):
