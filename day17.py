@@ -142,7 +142,7 @@ class Reservoir:
 if __name__ == '__main__':
 
     with open('data/17.txt') as f:
-        res = Resevoir(parse(f.readlines()))
+        res = Reservoir(parse(f.readlines()))
 
     res.fill()
 
