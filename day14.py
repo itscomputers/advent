@@ -1,7 +1,13 @@
 
 #   advent/2018/day14.py
 
-##############################
+#=============================
+
+def load(filename='data/14.txt'):
+    with open(filename) as f:
+        return f.read().rstrip()
+
+#=============================
 
 class Recipe:
 
@@ -19,7 +25,7 @@ class Recipe:
             r = r.next
         return r
 
-##############################
+#=============================
 
 class Queue:
 
@@ -69,7 +75,7 @@ class Queue:
                 '...' * (num < self.length),
                 ''.join(str(x.val) for x in reversed(arr)))
 
-##############################
+#=============================
         
 def next_ten_after(num):
     q = Queue(3,7)
@@ -80,7 +86,7 @@ def next_ten_after(num):
     else:
         return q.nth_last(11)[-11:-1]
 
-##############################
+#-----------------------------
 
 def find(string):
     l = len(string)
@@ -92,13 +98,44 @@ def find(string):
         elif string == q.nth_last(l+1)[-l-1:-1]:
             return q.length - l - 1
 
-##############################
+#=============================
+
+def test1(ch):
+    data = load('test/14-{}.txt'.format(ch))
+    results = {
+        'a' : '5158916779',
+        'b' : '0124515891',
+        'c' : '9251071085',
+        'd' : '5941429882'
+    }
+    return next_ten_after(int(data)) == results[ch]
+
+#-----------------------------
+
+def test2(ch):
+    data = load('test/14-{}.txt'.format(ch))
+    results = {
+        'e' : 9,
+        'f' : 5,
+        'g' : 18,
+        'h' : 2018
+    }
+    return find(data) == results[ch]
+
+#-----------------------------
+
+def main():
+    data = load()
+    print('\nmain problem:')
+    print('part 1: next ten = {}'.format(next_ten_after(int(data))))
+    print('part 2: number of recipes = {}'.format(find(data)))
+
+#=============================
 
 if __name__ == '__main__':
+    print('part 1 tests: passed {} / {}'.format(
+        sum(1 * test1(ch) for ch in 'abcd'), len('abcd')))
+    print('part 2 tests: passed {} / {}'.format(
+        sum(1 * test2(ch) for ch in 'efgh'), len('efgh')))
 
-    with open('data/14.txt') as f:
-        data = f.read().rstrip()
-
-    print(next_ten_after(int(data)))
-
-    print(find(data))
+    main()

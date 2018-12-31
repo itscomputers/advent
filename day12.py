@@ -3,12 +3,18 @@
 
 import re
 
-##############################
+#=============================
+
+def load(filename='data/12.txt'):
+    with open(filename) as f:
+        return parse(f.readlines())
+
+#-----------------------------
 
 def convert(string):
     return re.sub('\.', '0', re.sub('#', '1', string))
 
-##############################
+#-----------------------------
 
 def parse(data):
     state_pattern = re.compile('initial state: ([#\.]*)\\n')
@@ -22,26 +28,26 @@ def parse(data):
             if e == '#')
     return state, signatures
 
-##############################
+#=============================
 
 def surrounding(state, index):
     return sum( 2**(2 + index - i) * (i in state) \
                 for i in range(index - 2, index + 3))
 
-##############################
+#-----------------------------
 
 def evolve(state, signatures):
     return set(index for index in \
             range(min(state)-5, max(state)+5) \
             if surrounding(state, index) in signatures)
 
-##############################
+#-----------------------------
 
 def print_state(state, x0, x1):
     print(''.join('#'*(i in state) + '.'*(i not in state) \
             for i in range(x0, x1)))
 
-##############################
+#-----------------------------
 
 def find_stabilization(state, signatures, threshold):
     sums = [sum(state)]
@@ -60,18 +66,29 @@ def find_stabilization(state, signatures, threshold):
     
     return i + 1, steps[-1], sums[-1]
 
-##############################
+#=============================
 
-if __name__ == '__main__':
-
-    with open('data/12.txt') as f:
-        data = f.readlines()
-
-    state, signatures = parse(data)
+def test():
+    state, signatures = load('test/12.txt')
     for i in range(20):
         state = evolve(state, signatures)
-    print(sum(state))
+    return sum(state) == 325
 
-    state, signatures = parse(data)
+#-----------------------------
+
+def main():
+    print('\nmain problem:')
+    state, signatures = load()
+    for i in range(20):
+        state = evolve(state, signatures)
+    print('part 1: sum = {}'.format(sum(state)))
+    state, signatures = load()
     index, step, offset = find_stabilization(state, signatures, 20)
-    print((50000000000 - index) * step + offset)
+    print('part 2: sum = {}'.format((50*10**9 - index) * step + offset))
+
+#=============================
+
+if __name__ == '__main__':
+    print('part 1 tests: passed {} / 1'.format(1 * test()))
+
+    main()
