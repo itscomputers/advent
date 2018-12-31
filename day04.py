@@ -4,26 +4,13 @@
 import re
 from collections import defaultdict
 
-##############################
+#=============================
 
-months = [  '01', '02', '03', '04', '05', '06',
-            '07', '08', '09', '10', '11', '12'  ]
-days = [    '31', '28', '31', '30', '31', '30',
-            '31', '31', '30', '31', '30', '31'  ]
+def load(filename='data/04.txt'):
+    with open(filename) as f:
+        return parse(f.readlines())
 
-def next_day(date):
-    year, month, day = date.split('-')
-    if (month, day) in zip(months, days):
-        day = '01'
-        month = months[(months.index(month) + 1) % 12]
-    else:
-        day = str(int(day) + 1)
-        day = '0' * (len(day) % 2) + day
-    if (month, day) == ('01', '01'):
-        year = str(int(day) + 1)
-    return '{}-{}-{}'.format(year, month, day)
-
-##############################
+#-----------------------------
 
 def parse(data):
     shift_pattern = re.compile(r'Guard #(\d*)')
@@ -48,7 +35,26 @@ def parse(data):
 
     return guard_data
 
-##############################
+#=============================
+
+def next_day(date):
+    months = [  '01', '02', '03', '04', '05', '06',
+                '07', '08', '09', '10', '11', '12'  ]
+    last_days = [   '31', '28', '31', '30', '31', '30',
+                    '31', '31', '30', '31', '30', '31'  ]
+
+    year, month, day = date.split('-')
+    if (month, day) in zip(months, last_days):
+        day = '01'
+        month = months[(months.index(month) + 1) % 12]
+    else:
+        day = str(int(day) + 1)
+        day = '0' * (len(day) % 2) + day
+    if (month, day) == ('01', '01'):
+        year = str(int(day) + 1)
+    return '{}-{}-{}'.format(year, month, day)
+
+#-----------------------------
 
 def guard_minutes(data):
     guards = dict()
@@ -60,7 +66,7 @@ def guard_minutes(data):
                 guards[v['id']][m] += 1
     return guards
 
-##############################
+#-----------------------------
 
 def best_guard(guards):
     key_one = None
@@ -79,18 +85,38 @@ def best_guard(guards):
                 key_two = k
     return key_one, key_two
 
+#-----------------------------
+
+def process(key, guards):
+    guard = guards[key]
+    max_val = max(guard.values())
+    for minute, value in guard.items():
+        if value == max_val:
+            break
+    return key * minute
+
+#=============================
+
+def test():
+    guards = guard_minutes(load('test/04.txt'))
+    return tuple(map(lambda x, y: x == y, 
+        tuple(process(k, guards) for k in best_guard(guards)), 
+        (240, 4455)))
+
+#-----------------------------
+
+def main():
+    guards = guard_minutes(load())
+    results = [process(key, guards) for key in best_guard(guards)]
+    print('\nmain problem:')
+    print('part 1: most minutes / best minute: id * min = {}'.format(results[0]))
+    print('part 2: most frequent minute: id * min = {}'.format(results[1]))
+
 ##############################
 
 if __name__ == '__main__':
+    test_one, test_two = test()
+    print('part 1 tests: passed {} / 1'.format(1 * test_one))
+    print('part 2 tests: passed {} / 1'.format(1 * test_two))
 
-    with open('data/04.txt') as f:
-        guards = guard_minutes(parse(f.readlines()))
-
-    k1, k2 = best_guard(guards)
-    for k in [k1, k2]:
-        guard = guards[k]
-        max_val = max(guards[k].values())
-        for minute, value in guards[k].items():
-            if value == max_val:
-                break
-        print(k * minute)
+    main()

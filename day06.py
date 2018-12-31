@@ -1,23 +1,32 @@
 
 #   advent/2018/day06.py
 
+import re
 from itertools import product
 
-##############################
+#=============================
+
+def load(filename='data/06.txt'):
+    with open(filename) as f:
+        return parse(f.readlines())
+
+#-----------------------------
 
 def parse(data):
+    point_pattern = re.compile(r'(\d+), (\d+)')
     pts = []
     for line in data:
-        line.rstrip('\n').replace(' ', '')
-        pts.append(tuple(int(x) for x in line.split(',')))
+        if point_pattern.search(line) is not None:
+            pts.append(tuple(int(x) for x in \
+                    point_pattern.search(line).group(1,2)))
     return pts
 
-##############################
+#=============================
 
-def distance(a, b):
-    return sum(abs(pa - pb) for (pa, pb) in zip(a, b))
+def distance(pt1, pt2):
+    return sum(map(lambda x, y: abs(x - y), pt1, pt2))
 
-##############################
+#-----------------------------
 
 def get_grid(pts, buff):
     x = list(map(lambda p : p[0], pts))
@@ -27,7 +36,7 @@ def get_grid(pts, buff):
     grid = list(product(range(x0, x1 + 1), range(y0, y1 + 1)))
     return grid
 
-##############################
+#-----------------------------
 
 def resolve(pts, grid):
     distances = {q : ((distance(q, pts[0]), )*2, [pts[0]]) for q in grid}
@@ -45,7 +54,7 @@ def resolve(pts, grid):
                 distances[q] = ((dist, dist_sum), closest_points)
     return distances
 
-##############################
+#-----------------------------
 
 def max_area(grid, distances):
     (x0, y0) = grid[0]
@@ -64,37 +73,55 @@ def max_area(grid, distances):
                     areas[closest] += 1
     return max(areas.values())
 
-##############################
+#-----------------------------
 
 def max_region(grid, distances, N):
     return sum(1 for q in grid if distances[q][0][1] < N)
 
-##############################
+#-----------------------------
 
-if __name__ == '__main__':
-    
-    with open('data/06.txt') as f:
-        pts = parse(f.readlines())
-
+def stabilize_region(pts, constraint):
     buff = 1
-    constraint = 10000
     grid = get_grid(pts, buff)
-    distances = resolve(pts, grid)
-    area = max_area(grid, distances)
-    region = max_region(grid, distances, constraint)
-
+    region = max_region(grid, resolve(pts, grid), constraint)
     while True:
         buff *= 2
         grid = get_grid(pts, buff)
-        distances = resolve(pts, grid)
-        new_region = max_region(grid, distances, constraint)
+        new_region = max_region(grid, resolve(pts, grid), constraint)
         if new_region == region:
             break
+    return region
+
+#=============================
+
+def test():
+    pts = load('test/06.txt')
+    grid = get_grid(pts, 0)
+    area = max_area(grid, resolve(pts, grid))
+    region = stabilize_region(pts, 32)
+    return (area == 17), (region == 16)
     
-    print(area)
-    print(region)
+#-----------------------------
 
+def main():
+    pts = load()
+    grid = get_grid(pts, 0)
+    area = max_area(grid, resolve(pts, grid))
+    region = stabilize_region(pts, 10000)
+    print('\nmain problem:')
+    print('part 1: largest area = {}'.format(area))
+    print('part 2: largest area = {}'.format(region))
 
+#=============================
+
+if __name__ == '__main__':
+    test_one, test_two = test()
+    print('part 1 tests: passed {} / 1'.format(1 * test_one))
+    print('part 2 tests: passed {} / 1'.format(1 * test_two))
+    
+    main()
+
+#=============================
 #   Theoretically speaking, if all the points were smashed together,
 #   the minimum buffer should be much larger.  Fortunately, the first
 #   exercise showed us that the some of the points are somewhat spread

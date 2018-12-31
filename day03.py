@@ -5,6 +5,14 @@ from collections import defaultdict
 from itertools import product
 import re
 
+#=============================
+
+def load(filename='data/03.txt'):
+    with open(filename) as f:
+        return parse(f.readlines())
+
+#-----------------------------
+
 def parse(data):
     id_pattern = re.compile(r'#(\d*)')
     coords_pattern = re.compile(r'(\d*),(\d*)')
@@ -20,7 +28,7 @@ def parse(data):
     return { key : [coords, size] \
             for key, coords, size in [line_parse(line) for line in data]}
 
-##############################
+#=============================
 
 def rectangle(array):
     coords, size = array
@@ -28,7 +36,7 @@ def rectangle(array):
     sx, sy = size
     return [(cx + i, cy + j) for i, j in product(range(sx), range(sy))]
 
-##############################
+#-----------------------------
 
 def process_claims(data):
     conflict_free = list()
@@ -48,14 +56,28 @@ def process_claims(data):
             conflict_free.append(key)
     return conflict_free, claims
 
-##############################
+#=============================
+
+def test():
+    conflict_free, claims = process_claims(load('test/03.txt'))
+    return len([ids for ids in claims.values() if len(ids) > 1]) == 4, \
+            (len(conflict_free) == 1 and conflict_free[0] == 3)
+
+#-----------------------------
+
+def main():
+    conflict_free, claims = process_claims(load())
+    print('\nmain problem:')
+    print('part 1: number of squares in conflict = {}'.format(
+        len([ids for ids in claims.values() if len(ids) > 1])))
+    assert( len(conflict_free) == 1)
+    print('part 2: ID for conflict-free claim = {}'.format(conflict_free[0]))
+
+#=============================
 
 if __name__ == '__main__':
+    test_one, test_two = test()
+    print('part 1 tests: passed {} / 1'.format(1 * test_one))
+    print('part 2 tests: passed {} / 1'.format(1 * test_two)) 
 
-    with open('data/03.txt') as f:
-        data = parse(f.readlines())
-
-    conflict_free, claims = process_claims(data)
-    print(sum(1 for ids in claims.values() if len(ids) > 1))
-    print(conflict_free[0])
-    assert( len(conflict_free) == 1 )
+    main()

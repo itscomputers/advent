@@ -4,23 +4,15 @@
 import re
 import string
 
-##############################
+#=============================
 
-alphabet = {x : i+1 for i, x in enumerate(string.ascii_uppercase)}
+def load(filename='data/07.txt', delay=0):
+    with open(filename) as f:
+        return parse(f.readlines(), delay)
 
-##############################
+#-----------------------------
 
-class Node:
-
-    def __init__(self, value, delay):
-        self.val = value
-        self.parents = []
-        self.children = []
-        self.delay = (delay != 0) *  alphabet[value] + delay
-
-##############################
-
-def parse(data, delay=0):
+def parse(data, delay):
     nodes = dict()
     parent_pattern = re.compile(r'([A-Z]) must be finished')
     child_pattern = re.compile(r'([A-Z]) can begin')
@@ -35,7 +27,21 @@ def parse(data, delay=0):
         nodes[c].parents.append(p)
     return nodes
 
-##############################
+#=============================
+
+alphabet = {x : i+1 for i, x in enumerate(string.ascii_uppercase)}
+
+#=============================
+
+class Node:
+
+    def __init__(self, value, delay):
+        self.val = value
+        self.parents = []
+        self.children = []
+        self.delay = (delay != 0) *  alphabet[value] + delay
+
+#=============================
 
 def process(queue, completed, time_elapsed,
         ready, workers, free_workers):
@@ -61,7 +67,7 @@ def process(queue, completed, time_elapsed,
     
     return queue, completed, time_elapsed, ready, workers, free_workers
 
-##############################
+#-----------------------------
 
 def order(queue, num_workers=1, delay=0):
     completed = ''
@@ -75,16 +81,35 @@ def order(queue, num_workers=1, delay=0):
                         ready, workers, free_workers)
     return completed, time_elapsed 
 
-#############################
+#============================
+
+def test1():
+    queue = load('test/07.txt')
+    completed, time_elapsed = order(queue)
+    return completed == 'CABDFE'
+
+#----------------------------
+
+def test2():
+    queue = load('test/07.txt', delay=.01)
+    completed, time_elapsed = order(queue, num_workers=2, delay=.01)
+    return int(time_elapsed) == 15
+
+#----------------------------
+
+def main():
+    print('\nmain problem:')
+    queue = load()
+    completed, time_elapsed = order(queue)
+    print('part 1: order of completion = {}'.format(completed))
+    queue = load(delay=60)
+    completed, time_elapsed = order(queue, num_workers=6, delay=60)
+    print('part 2: time elapsed = {}'.format(time_elapsed))
+
+#============================
 
 if __name__ == '__main__':
+    print('part 1 tests: passed {} / 1'.format(1 * test1()))
+    print('part 2 tests: passed {} / 1'.format(1 * test2()))
 
-    with open('data/07.txt') as f:
-        queue = parse(f.readlines())
-    completed, time_elapsed = order(queue)
-    print('{} -- {} seconds'.format(completed, time_elapsed))
-
-    with open('data/07.txt') as f:
-        queue = parse(f.readlines(), delay=60)
-    completed, time_elapsed = order(queue, num_workers=6, delay=60)
-    print('{} -- {} seconds'.format(completed, time_elapsed))
+    main()
