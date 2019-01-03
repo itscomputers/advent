@@ -36,28 +36,26 @@ def game(num_players, max_value):
 
 #=============================
 
-def test(ch):
-    results = {
-        'a' : 8317,
-        'b' : 146373,
-        'c' : 2764,
-        'd' : 54718,
-        'e' : 37305
-    }
-    return game(*load('test/09-{}.txt'.format(ch))) == results[ch]
+def test():
+    print('\ntests:')
+    results = [game(*load('test/09-{}.txt'.format(ch))) for ch in 'abcde']
+    print('part 1: passed {} / 5'.format(
+        sum(map(lambda x, y: 1 * (x == y),
+            results, [8317, 146373, 2764, 54718, 37305]))))
 
 #-----------------------------
 
 def main():
-    num_players, max_value = load()
     print('\nmain problem:')
+    num_players, max_value = load()
     print('part 1: winning score = {}'.format(game(num_players, max_value)))
     print('part 2: winning score = {}'.format(game(num_players, 100*max_value)))
 
 ##############################
 
 if __name__ == '__main__':
-    print('part 1 tests: passed {} / {}'.format(
-        sum(1 * test(ch) for ch in 'abcde'), len('abcde')))
 
+    print('\nproblem 9')
+    test()
     main()
+    print()
