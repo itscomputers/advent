@@ -97,26 +97,31 @@ def process(key, guards):
 
 #=============================
 
+def run(data):
+    guards = guard_minutes(data)
+    return tuple(process(k, guards) for k in best_guard(guards))
+
+#-----------------------------
+
 def test():
-    guards = guard_minutes(load('test/04.txt'))
-    return tuple(map(lambda x, y: x == y, 
-        tuple(process(k, guards) for k in best_guard(guards)), 
-        (240, 4455)))
+    print('\ntests:')
+    part1, part2 = run(load('test/04.txt'))
+    print('part 1: passed {} / 1'.format(1 * (part1 == 240)))
+    print('part 2: passed {} / 1'.format(1 * (part2 == 4455)))
 
 #-----------------------------
 
 def main():
-    guards = guard_minutes(load())
-    results = [process(key, guards) for key in best_guard(guards)]
     print('\nmain problem:')
-    print('part 1: most minutes / best minute: id * min = {}'.format(results[0]))
-    print('part 2: most frequent minute: id * min = {}'.format(results[1]))
+    part1, part2 = run(load())
+    print('part 1: id * min = {}'.format(part1))
+    print('part 2: id * min = {}'.format(part2))
 
-##############################
+#=============================
 
 if __name__ == '__main__':
-    test_one, test_two = test()
-    print('part 1 tests: passed {} / 1'.format(1 * test_one))
-    print('part 2 tests: passed {} / 1'.format(1 * test_two))
 
+    print('\nproblem 4')
+    test()
     main()
+    print()

@@ -81,19 +81,16 @@ def order(queue, num_workers=1, delay=0):
                         ready, workers, free_workers)
     return completed, time_elapsed 
 
-#============================
+#=============================
 
-def test1():
+def test():
+    print('\ntests:')
     queue = load('test/07.txt')
     completed, time_elapsed = order(queue)
-    return completed == 'CABDFE'
-
-#----------------------------
-
-def test2():
+    print('part 1: passed {} / 1'.format(1 * (completed == 'CABDFE')))
     queue = load('test/07.txt', delay=.01)
     completed, time_elapsed = order(queue, num_workers=2, delay=.01)
-    return int(time_elapsed) == 15
+    print('part 2: passed {} / 1'.format(1 * (int(time_elapsed) == 15)))
 
 #----------------------------
 
@@ -109,7 +106,8 @@ def main():
 #============================
 
 if __name__ == '__main__':
-    print('part 1 tests: passed {} / 1'.format(1 * test1()))
-    print('part 2 tests: passed {} / 1'.format(1 * test2()))
 
+    print('\nproblem 7')
+    test()
     main()
+    print()

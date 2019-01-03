@@ -4,7 +4,13 @@
 import re
 from functools import reduce
 
-##############################
+#=============================
+
+def load(filename='data/17.txt'):
+    with open(filename) as f:
+        return parse(f.readlines())
+
+#-----------------------------
 
 def parse(data):
     clay = set()
@@ -21,7 +27,7 @@ def parse(data):
                 clay.add((x,y))
     return clay
 
-##############################
+#=============================
 
 class Reservoir:
 
@@ -35,7 +41,7 @@ class Reservoir:
         self.ymin, self.ymax = min(Y), max(Y)
         self.sources = [(500, self.ymin)]
 
-    ##########################
+    #-------------------------
 
     def __repr__(self):
         lines = ['.' * (500 - self.xmin) + '+' + '.' * (self.xmax - 500), '']
@@ -53,7 +59,7 @@ class Reservoir:
             lines.append(line)
         return '\n'.join(lines)
 
-    ##########################
+    #-------------------------
 
     def clay_below(self, p):
         "p: source point -> q: point above clay"
@@ -64,7 +70,7 @@ class Reservoir:
             (x, y) = min(possible)
             return (x, y-1)
 
-    ##########################
+    #-------------------------
 
     def base(self, p):
         "p: point above clay -> x0, x1: left/right x-coords of base"
@@ -76,7 +82,7 @@ class Reservoir:
             x1 += 1
         return x0, x1
 
-    ##########################
+    #-------------------------
 
     def walls(self, p, x_base):
         "p: point above clay, x0, x1: base(p) -> left, right: walls"
@@ -95,7 +101,7 @@ class Reservoir:
 
         return left, right
 
-    ##########################
+    #-------------------------
 
     def h_fill(self, p):
         "p: point above clay -> None, update flowing, stationary"
@@ -116,7 +122,7 @@ class Reservoir:
         else:
             self.stationary |= set((x, p[1]) for x in range(left + 1, right))
 
-    ##########################
+    #-------------------------
 
     def well_fill(self, p):
         "p: source point -> None, update flowing, stationary, sources"
@@ -130,21 +136,41 @@ class Reservoir:
                 self.h_fill((x, y))
                 y -= 1
                 
-    ##########################
+    #-------------------------
 
     def fill(self):
         while self.sources != []:
             source = self.sources.pop(0)
             self.well_fill(source)
             
-##############################
+#=============================
+
+def run(data):
+    res = Reservoir(data)
+    res.fill()
+    return len(res.flowing | res.stationary), len(res.stationary)
+
+#-----------------------------
+
+def test():
+    print('\ntests:')
+    all_tiles, stationary_tiles = run(load('test/17.txt'))
+    print('part 1: passed {} / 1'.format(1* (all_tiles == 57)))
+    print('part 2: passed {} / 1'.format(1 * (stationary_tiles == 29)))
+
+#-----------------------------
+
+def main():
+    print('\nmain problem:')
+    all_tiles, stationary_tiles = run(load())
+    print('part 1: tiles = {}'.format(all_tiles))
+    print('part 2: tiles = {}'.format(stationary_tiles))
+
+#=============================
 
 if __name__ == '__main__':
 
-    with open('data/17.txt') as f:
-        res = Reservoir(parse(f.readlines()))
-
-    res.fill()
-
-    print(len(res.flowing | res.stationary))
-    print(len(res.stationary))
+    print('\nproblem 17')
+    test()
+    main()
+    print()

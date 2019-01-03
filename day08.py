@@ -38,24 +38,32 @@ def metadata_sum(data, problem=1):
 
 #=============================
 
+def run(data):
+    part1 = metadata_sum([x for x in data], problem=1)
+    part2 = metadata_sum(data, problem=2)
+    return part1, part2
+
+#-----------------------------
+
 def test():
-    data = load('test/08.txt')
-    return metadata_sum([x for x in data]) == 138, \
-            metadata_sum(data, problem=2) == 66
+    print('\ntests:')
+    part1, part2 = run(load('test/08.txt'))
+    print('part 1: passed {} / 1'.format(1 * (part1 == 138)))
+    print('part 2: passed {} / 2'.format(1 * (part2 == 66)))
 
 #-----------------------------
 
 def main():
-    data = load()
     print('\nmain problem:')
-    print('part 1: metadata sum = {}'.format(metadata_sum([x for x in data])))
-    print('part 2: metadata sum = {}'.format(metadata_sum(data, problem=2)))
+    part1, part2 = run(load())
+    print('part 1: metadata sum = {}'.format(part1))
+    print('part 2: metadata sum = {}'.format(part2))
 
 ##############################
 
 if __name__ == '__main__':
-    test_one, test_two = test()
-    print('part 1 tests: passed {} / 1'.format(1 * test_one))
-    print('part 2 tests: passed {} / 1'.format(1 * test_two))
-    
+
+    print('\nproblem 8')
+    test()
     main()
+    print()

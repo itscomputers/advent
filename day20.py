@@ -4,7 +4,13 @@
 import re
 from itertools import product
 
-##############################
+#=============================
+
+def load(filename='data/20.txt'):
+    with open(filename) as f:
+        return f.read().rstrip()
+
+#=============================
 
 class Node:
 
@@ -17,7 +23,7 @@ class Node:
         return self.word + \
                 (self.children != []) * ' -> {}'.format(self.children)
 
-##############################
+#=============================
 
 class Map:
 
@@ -36,7 +42,7 @@ class Map:
     def __repr__(self):
         return format(self.base)
 
-    ##########################
+    #-------------------------
 
     def tokenize(self, string):
         while string != '$':
@@ -53,7 +59,7 @@ class Map:
                     yield string[0]
                 string = string[1:]
 
-    ##########################
+    #-------------------------
 
     def populate(self):
         while True:
@@ -74,7 +80,7 @@ class Map:
             except StopIteration:
                 break
 
-    ##########################
+    #-------------------------
 
     def move(self, loc, ch):
         if ch == 'N':
@@ -86,7 +92,7 @@ class Map:
         if ch == 'W':
             return (loc[0] - 1, loc[1]), (loc[0] - 2, loc[1])
 
-    ##########################
+    #-------------------------
 
     def build_map(self):
         visited = set([(0, 0)])
@@ -108,7 +114,7 @@ class Map:
         self.visited = visited
         self.doors = doors
 
-    ##########################
+    #-------------------------
 
     def nbhd(self, loc):
         nbhd = []
@@ -122,7 +128,7 @@ class Map:
             nbhd.append((loc[0] - 2, loc[1]))
         return nbhd
 
-    ##########################
+    #-------------------------
 
     def compute_distances(self):
         visited = []
@@ -137,12 +143,38 @@ class Map:
             distances[loc] = dist
         self.distances = distances
 
+#=============================
+
+def run(data, threshhold):
+    m = Map(data)
+    if threshhold is None:
+        return max(m.distances.values())
+    else:
+        return max(m.distances.values()), \
+            len([loc for loc, dist in m.distances.items() if dist > threshhold])
+
+#-----------------------------
+
+def test():
+    print('\ntests:')
+    values = [run(load('test/20-{}.txt'.format(ch)), None) for ch in 'abcd']
+    answers = [10, 18, 23, 31]
+    print('part 1: passed {} / {}'.format(
+        sum(1 * (a == b) for a, b in zip(values, answers)), len(answers)))
+
+#-----------------------------
+
+def main():
+    print('\nmain problem:')
+    doors, rooms = run(load(), 999)
+    print('part 1: doors = {}'.format(doors))
+    print('part 2: rooms = {}'.format(rooms))
+
 ##############################
 
 if __name__ == '__main__':
 
-    with open('data/20.txt') as f:
-        m = Map(f.read().rstrip())
-
-    print(max(m.distances.values()))
-    print(len([loc for loc, dist in m.distances.items() if dist > 999]))
+    print('\nproblem 20')
+    test()
+    main()
+    print()

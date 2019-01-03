@@ -78,17 +78,19 @@ def plot(pts, t):
 #=============================
 
 def test():
+    print('\ntests:')
     pts = load('test/10.txt')
     time_elapsed = time(pts)
+    print('part 1:')
     plot(pts, time_elapsed)
-    return time_elapsed == 3
+    print('part 2: passed {} / 1'.format(1 * (time_elapsed == 3)))
 
 #-----------------------------
 
 def main():
+    print('\nmain problem:')
     pts = load()
     time_elapsed = time(pts)
-    print('\nmain problem:')
     print('part 1:')
     plot(pts, time_elapsed)
     print('part 2: time_elapsed = {}'.format(time_elapsed))
@@ -96,7 +98,8 @@ def main():
 #=============================
 
 if __name__ == '__main__':
-    t = test()
-    print('part 2 tests: passed {} / 1'.format(1 * t))
 
+    print('\nproblem 10')
+    test()
     main()
+    print()

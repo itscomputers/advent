@@ -23,44 +23,32 @@ def find_first_repeat(data):
 
 #=============================
 
-def test1(ch):
-    filename = 'test/01-{}.txt'.format(ch)
-    results = {
-        'a' : 3,
-        'b' : 3,
-        'c' : 0,
-        'd' : -6
-    }
-    return sum(load(filename)) == results[ch]
-
-#-----------------------------
-
-def test2(ch):
-    filename = 'test/01-{}.txt'.format(ch)
-    results = {
-        'e' : 0,
-        'f' : 10,
-        'g' : 5,
-        'h' : 14
-    }
-    return find_first_repeat(load(filename)) == results[ch]
-
+def test():
+    print('\ntests:')
+    print('part 1: passed {} / {}'.format(
+        sum(map(lambda x, y: x == y, 
+            (sum(load('test/01-{}.txt'.format(ch))) for ch in 'abcd'), 
+            [3, 3, 0, -6])),
+        len('abcd')))
+    print('part 2: passed {} / {}'.format(
+        sum(map(lambda x, y: x == y,
+            (find_first_repeat(load('test/01-{}.txt'.format(ch))) \
+                    for ch in 'efgh'),
+            [0, 10, 5, 14])),
+        len('efgh')))
+    
 #-----------------------------
 
 def main():
-    data = load()
     print('\nmain problem:')
-    print('part 1: resulting frequency = {}'.format(sum(data)))
-    print('part 2: first repeat = {}'.format(find_first_repeat(data)))
+    print('part 1: resulting frequency = {}'.format(sum(load())))
+    print('part 2: first repeat = {}'.format(find_first_repeat(load())))
 
 #=============================
 
 if __name__ == '__main__':
-    print('part 1 tests: passed {} / {}'.format(
-        sum(1*test1(ch) for ch in 'abcd'),
-        len('abcd')))
-    print('part 2 tests: passed {} / {}'.format(
-        sum(1*test2(ch) for ch in 'efgh'),
-        len('efgh')))
 
+    print('\nproblem 1')
+    test()
     main()
+    print()

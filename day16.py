@@ -3,7 +3,13 @@
 
 import re
 
-##############################
+#=============================
+
+def load(filename='data/16.txt'):
+    with open(filename) as f:
+        return parse(f.readlines())
+
+#-----------------------------
 
 def parse(data):
     before_pattern = re.compile('Before: \[(\d+), (\d+), (\d+), (\d+)\]')
@@ -26,7 +32,7 @@ def parse(data):
     instructions = opcodes[len(inputs):]
     return samples, instructions
 
-##############################
+#=============================
 
 def addr(r_, a, b, c):
     r = [x for x in r_]
@@ -118,7 +124,7 @@ opcodes = [
     eqir, eqri, eqrr
 ]
 
-##############################
+#=============================
 
 class Opcodes:
 
@@ -144,19 +150,32 @@ class Opcodes:
                 if m not in self.determined() and op in self.dict[m]:
                     self.dict[m].remove(op)
 
-##############################
+#=============================
 
-if __name__ == '__main__':
+def ambiguous(samples):
+        return sum(1 for i, [n,a,b,c], o in samples \
+                    if len([op for op in opcodes if op(i,a,b,c) == o]) > 2)
 
-    with open('data/16.txt') as f:
-        samples, instructions = parse(f.readlines())
+#=============================
 
-    print('ambiguous samples: {}'.format(
-        sum(1 for i, [n,a,b,c], o in samples \
-                if sum(1 for op in opcodes if op(i,a,b,c) == o) > 2)))
+def test():
+    print('\nno tests')
 
+def main():
+    print('\nmain problem:')
+    samples, instructions = load()
+    print('part 1: ambiguous samples = {}'.format(ambiguous(samples)))
     opcd = Opcodes(samples).dict
     r = [0, 0, 0, 0]
     for [n, a, b, c] in instructions:
         r = opcd[n](r, a, b, c)
-    print('register after all instructions: {}'.format(r))
+    print('part 2: register[0] = {}'.format(r[0]))
+
+#=============================
+
+if __name__ == '__main__':
+
+    print('\nproblem 16')
+    test()
+    main()
+    print()

@@ -4,33 +4,18 @@
 from collections import defaultdict
 from itertools import product
 
+#=============================
+
+def load(filename='data/25.txt'):
+    with open(filename) as f:
+        return parse(f.readlines())
+
 #-----------------------------
 
 def parse(data):
     return [tuple(int(x) for x in line.split(',')) for line in data]
 
-#-----------------------------
-
-def load():
-    with open('data/25.txt') as f:
-        return parse(f.readlines())
-
-#-----------------------------
-
-def test(num):
-   datas = [
-        ['-1,2,2,0', '0,0,2,-2', '0,0,0,-2', '-1,2,0,0', '-2,-2,-2,2',
-         '3,0,2,-1', '-1,3,2,2', '-1,0,-1,0', '0,2,1,-2', '3,0,0,0'],
-
-        ['1,-1,0,1', '2,0,-1,0', '3,2,-1,0', '0,0,3,1', '0,0,-1,-1',
-         '2,3,-2,0', '-2,2,0,0', '2,-2,0,-1', '1,-1,0,-1', '3,2,0,2'],
-
-        ['1,-1,-1,-2', '-2,-2,0,1', '0,2,1,3', '-2,3,-2,1', '0,2,3,-2',
-         '-1,-1,1,-2', '0,-2,-1,0', '-2,2,3,-1', '1,2,2,0', '-1,-2,0,-2']
-    ]
-   return parse(datas[num])
-
-#-----------------------------
+#=============================
 
 def dist(pt1, pt2):
     return sum(map(lambda x, y: abs(x - y), pt1, pt2))
@@ -67,13 +52,35 @@ def connected_components(graph):
 
     return components
 
+#=============================
+
+def run(data):
+    graph = build_graph(data)
+    components = connected_components(graph)
+    return len(components)
+
+#-----------------------------
+
+def test():
+    print('\ntests:')
+    components = [run(load('test/25-{}.txt'.format(ch))) for ch in 'abc']
+    answers = [4, 3, 8]
+    print('part 1: passed {} / {}'.format(
+        sum(map(lambda x, y: x == y, components, answers)),
+        len('abc')))
+
 #-----------------------------
 
 def main():
-    num_constellations = len(connected_components(build_graph(load())))
-    print('number of constellations: {}'.format(num_constellations))
+    print('\nmain problem:')
+    components = run(load())
+    print('part 1: number of constellations = {}'.format(components))
 
 #-----------------------------
 
 if __name__ == '__main__':
+
+    print('\nproblem 25')
+    test()
     main()
+    print()

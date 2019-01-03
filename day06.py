@@ -94,32 +94,36 @@ def stabilize_region(pts, constraint):
 
 #=============================
 
-def test():
-    pts = load('test/06.txt')
+def run(pts, constraint):
     grid = get_grid(pts, 0)
     area = max_area(grid, resolve(pts, grid))
-    region = stabilize_region(pts, 32)
-    return (area == 17), (region == 16)
+    region = stabilize_region(pts, constraint)
+    return area, region
+
+#-----------------------------
+
+def test():
+    print('\ntests:')
+    area, region = run(load('test/06.txt'), 32)
+    print('part 1 tests: passed {} / 1'.format(1 * (area == 17)))
+    print('part 2 tests: passed {} / 1'.format(1 * (region == 16)))
     
 #-----------------------------
 
 def main():
-    pts = load()
-    grid = get_grid(pts, 0)
-    area = max_area(grid, resolve(pts, grid))
-    region = stabilize_region(pts, 10000)
     print('\nmain problem:')
+    area, region = run(load(), 10000)
     print('part 1: largest area = {}'.format(area))
     print('part 2: largest area = {}'.format(region))
 
 #=============================
 
 if __name__ == '__main__':
-    test_one, test_two = test()
-    print('part 1 tests: passed {} / 1'.format(1 * test_one))
-    print('part 2 tests: passed {} / 1'.format(1 * test_two))
     
+    print('problem 6')
+    test()
     main()
+    print()
 
 #=============================
 #   Theoretically speaking, if all the points were smashed together,

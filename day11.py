@@ -77,37 +77,39 @@ def max_square(g, squares):
 
 #=============================
 
-def test(ch):
-    g = grid(load('test/11-{}.txt'.format(ch)))
+def run(data):
+    g = grid(data)
     squares = squares_by_size(g, vert_sums(g))
-    results = {
-        'a' : [(33, 45), (90, 269, 16)],
-        'b' : [(21, 61), (232, 251, 12)]
-    }
     x, y, size, power = max_square_by_size(g, 3, squares)
-    test_one = (x, y) == results[ch][0]
+    part1 = (x, y)
     x, y, size, power = max_square(g, squares)
-    test_two = (x, y, size) == results[ch][1]
-    return test_one, test_two 
+    part2 = (x, y, size)
+    return part1, part2
+
+#-----------------------------
+
+def test():
+    print('\ntests:')
+    results = [run(load('test/11-{}.txt'.format(ch))) for ch in 'ab']
+    answers = [((33, 45), (90, 269, 16)), ((21, 61), (232, 251, 12))]
+    print('part 1: passed {} / {}'.format(
+        sum(map(lambda x, y: 1 * (x[0] == y[0]), results, answers)), 2))
+    print('part 2: passed {} / {}'.format(
+        sum(map(lambda x, y: 1 * (x[1] == y[1]), results, answers)), 2))
 
 #-----------------------------
 
 def main():
-    g = grid(load())
-    squares = squares_by_size(g, vert_sums(g))
     print('\nmain problem:')
-    x, y, size, power = max_square_by_size(g, 3, squares)
-    print('part 1: coordinate = {},{}'.format(x, y))
-    x, y, size, power = max_square(g, squares)
-    print('part 2: identifier = {},{},{}'.format(x, y, size))
+    part1, part2 = run(load())
+    print('part 1: coordinate = {},{}'.format(*part1))
+    print('part 2: identifier = {},{},{}'.format(*part2))
 
 #=============================
 
 if __name__ == '__main__':
-    tests = [test(ch) for ch in 'ab']
-    print('part 1 tests: passed {} / {}'.format(
-        sum(1 * t[0] for t in tests), len('ab')))
-    print('part 2 tests: passed {} / {}'.format(
-        sum(1 * t[1] for t in tests), len('ab')))
 
+    print('\nproblem 11')
+    test()
     main()
+    print()

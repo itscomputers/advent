@@ -4,7 +4,13 @@
 from itertools import product
 from collections import Counter, defaultdict
 
-##############################
+#=============================
+
+def load(filename='data/18.txt'):
+    with open(filename) as f:
+        return parse([x.strip() for x in f.readlines()])
+
+#-----------------------------
 
 def parse(data):
     resources = dict()
@@ -13,7 +19,7 @@ def parse(data):
             resources[(x,y)] = ch
     return resources
 
-##############################
+#=============================
 
 class Area:
 
@@ -23,7 +29,7 @@ class Area:
         self.xmax = max(p[0] for p in resources.keys()) + 1
         self.ymax = max(p[1] for p in resources.keys()) + 1
 
-    ##########################
+    #-------------------------
 
     def __repr__(self):
         return '\n'.join(
@@ -32,7 +38,7 @@ class Area:
             ) for y in range(self.ymax)
         )
 
-    ##########################
+    #-------------------------
 
     def nbhd(self, point):
         x, y = point
@@ -42,7 +48,7 @@ class Area:
                 and 0 <= s < self.ymax \
                 and (r, s) != (x, y)]
 
-    ##########################
+    #-------------------------
 
     def scan(self, point):
         n = self.nbhd(point)
@@ -53,7 +59,7 @@ class Area:
         if self.resources[point] == '#':
             return (n.count('#') * n.count('|')) == 0
 
-    ##########################
+    #-------------------------
 
     def eval(self, point):
         for i in range(3):
@@ -61,23 +67,23 @@ class Area:
                 return self.cycle[i+1]
         return self.resources[point]
 
-    ##########################
+    #-------------------------
 
     def advance(self):
         new_resources = {point : self.eval(point) for point in self.resources}
         self.resources = new_resources
 
-    ##########################
+    #-------------------------
 
     def status(self):
         return Counter(self.resources.values())
 
-    ##########################
+    #-------------------------
 
     def value(self):
         return self.status()['|'] * self.status()['#']
 
-##############################
+#=============================
 
 def find_repeat(area):
     resources = []
@@ -87,18 +93,42 @@ def find_repeat(area):
         resources.append(area.resources)
         area.advance()
 
-##############################
+#=============================
+
+def part1(data):
+    area = Area(data)
+    for i in range(10):
+        area.advance()
+    return area.value()
+    
+#-----------------------------
+
+def part2(data):
+    area = Area(data)
+    i0, i1 = find_repeat(area)
+    for j in range((10**9 - i1) % (i1 - i0)):
+        area.advance()
+    return area.value()
+
+#-----------------------------
+
+def test():
+    print('\ntests:')
+    value = part1(load('test/18.txt'))
+    print('part 1: passed {} / 1'.format(1 * (value == 1147)))
+
+#-----------------------------
+
+def main():
+    print('\nmain problem:')
+    print('part 1: value = {}'.format(part1(load())))
+    print('part 2: value = {}'.format(part2(load())))
+
+#=============================
 
 if __name__ == '__main__':
 
-    with open('data/18.txt') as f:
-        area = Area(parse([x.rstrip() for x in f.readlines()]))
-
-    for i in range(10):
-        area.advance()
-    print(area.value())
-
-    i0, i1 = find_repeat(area)
-    for j in range((10**9 - i1 - 10) % (i1 - i0)):
-        area.advance()
-    print(area.value())
+    print('\nproblem 18')
+    test()
+    main()
+    print()

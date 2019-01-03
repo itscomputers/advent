@@ -69,10 +69,11 @@ def find_stabilization(state, signatures, threshold):
 #=============================
 
 def test():
+    print('\ntests:')
     state, signatures = load('test/12.txt')
     for i in range(20):
         state = evolve(state, signatures)
-    return sum(state) == 325
+    print('part 1: passed {} / 1'.format(1 * (sum(state) == 325)))
 
 #-----------------------------
 
@@ -89,6 +90,8 @@ def main():
 #=============================
 
 if __name__ == '__main__':
-    print('part 1 tests: passed {} / 1'.format(1 * test()))
 
+    print('\nproblem 12')
+    test()
     main()
+    print()

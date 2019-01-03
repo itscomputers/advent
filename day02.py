@@ -31,26 +31,26 @@ def find_similarity(data):
 
 #=============================
 
-def test1():
-    return find_checksum(load('test/02-a.txt')) == 12
-
-#-----------------------------
-
-def test2():
-    return find_similarity(load('test/02-b.txt')) == 'fgij'
+def test():
+    print('\ntests:')
+    part1 = find_checksum(load('test/02-a.txt'))
+    part2 = find_similarity(load('test/02-b.txt'))
+    print('part 1: passed {} / 1'.format(1 * (part1 == 12)))
+    print('part 2: passed {} / 1'.format(1 * (part2 == 'fgij')))
 
 #-----------------------------
 
 def main():
-    data = load()
     print('\nmain problem:')
+    data = load()
     print('part 1: checksum = {}'.format(find_checksum(data)))
     print('part 2: similarity = {}'.format(find_similarity(data)))
 
 #=============================
 
 if __name__ == '__main__':
-    print('part 1 tests: passed {} / 1'.format(1 * test1()))
-    print('part 2 tests: passed {} / 1'.format(1 * test2()))
 
+    print('\nproblem 1')
+    test()
     main()
+    print()

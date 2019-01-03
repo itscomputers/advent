@@ -100,42 +100,31 @@ def find(string):
 
 #=============================
 
-def test1(ch):
-    data = load('test/14-{}.txt'.format(ch))
-    results = {
-        'a' : '5158916779',
-        'b' : '0124515891',
-        'c' : '9251071085',
-        'd' : '5941429882'
-    }
-    return next_ten_after(int(data)) == results[ch]
+def test():
+    print('\ntests:')
+    part1 = [next_ten_after(int(load('test/14-{}.txt'.format(ch)))) \
+                for ch in 'abcd']
+    print('part 1: passed {} / 4'.format(
+        sum(map(lambda x, y: 1 * (x == y), part1, 
+            ['5158916779', '0124515891', '9251071085', '5941429882']))))
 
-#-----------------------------
-
-def test2(ch):
-    data = load('test/14-{}.txt'.format(ch))
-    results = {
-        'e' : 9,
-        'f' : 5,
-        'g' : 18,
-        'h' : 2018
-    }
-    return find(data) == results[ch]
+    part2 = [find(load('test/14-{}.txt'.format(ch))) for ch in 'efgh']
+    print('part 2: passed {} / 4'.format(
+        sum(map(lambda x, y: 1 * (x == y), part2, [9, 5, 18, 2018]))))
 
 #-----------------------------
 
 def main():
-    data = load()
     print('\nmain problem:')
+    data = load()
     print('part 1: next ten = {}'.format(next_ten_after(int(data))))
     print('part 2: number of recipes = {}'.format(find(data)))
 
 #=============================
 
 if __name__ == '__main__':
-    print('part 1 tests: passed {} / {}'.format(
-        sum(1 * test1(ch) for ch in 'abcd'), len('abcd')))
-    print('part 2 tests: passed {} / {}'.format(
-        sum(1 * test2(ch) for ch in 'efgh'), len('efgh')))
 
+    print('\nproblem 14')
+    test()
     main()
+    print()

@@ -4,7 +4,13 @@
 import re
 import math
 
-##############################
+#=============================
+
+def load(filename='data/19.txt'):
+    with open(filename) as f:
+        return parse([x.rstrip() for x in f.readlines()])
+
+#-----------------------------
 
 def parse(data):
     opcodes = []
@@ -18,7 +24,7 @@ def parse(data):
             opcodes.append([opcode, tuple(int(x) for x in args)])
     return pointer, opcodes
 
-##############################
+#=============================
 
 def addr(r_, a, b, c):
     r = [x for x in r_]
@@ -100,7 +106,7 @@ def eqrr(r_, a, b, c):
     r[c] = 1 * (r[a] == r[b])
     return r
 
-##############################
+#=============================
 
 class Program:
 
@@ -109,6 +115,8 @@ class Program:
         self.opcodes = opcodes
         self.register = [0] * 6
         self.ip = 0
+    
+    #-------------------------
 
     def __repr__(self):
         try:
@@ -118,28 +126,24 @@ class Program:
             return 'state: {}\nip: {}'\
                 .format(self.register, self.ip)
 
+    #-------------------------
+
     def advance(self):
         opcode, args = self.opcodes[self.ip]
         self.register[self.ptr] = self.ip
         self.register = eval(opcode)(self.register, *args)
         self.ip = self.register[self.ptr] + 1
 
+    #-------------------------
+
     def run(self):
         while True:
             try:
                 self.advance()
             except IndexError:
-                print('Program Terminated\n: {}'.format(self))
                 break
 
-    ########################################################
-    #   Every time the register is of the form [a, 2, x, b, 0, c]
-    #   with ip=3 and bc != x and c != x, c increments by 1.
-    #   if bc != x and c == x, then b increments by 1.
-    #   however, if b is a divisor of x and bc = x, then a increments by b
-    #   therefore, we finally arrive at [a + sum(divisors(x)), 2, x, x, 0, x]
-    #   after a number of steps, this gives ip = 16**2 + 1, so it terminates
-    ########################################################
+    #-------------------------
 
     def signature(self):
         while self.register[4] != 0:
@@ -148,6 +152,8 @@ class Program:
             self.advance()
         return [self.register[i] for i in [0, 2, 3, 5]]
 
+    #-------------------------
+
     def shortcut(self):
         signature = self.signature()
         num = signature[1]
@@ -155,31 +161,41 @@ class Program:
                 [signature[0] + sum(divisors(num)), 16**2, num, num+1, 1, num+1]
         self.ip = 16**2 + 1
 
-##############################
+#=============================
 
 def divisors(num):
     divs = [x for x in range(1, int(math.sqrt(num)) + 1) if num % x == 0]
     return sorted(list(set(divs + list(map(lambda d: num//d, divs)))))
 
-##############################
+#=============================
+
+def test():
+    print('\ntests:')
+    data = load('test/19.txt')
+    p = Program(*data)
+    p.run()
+    print('part 1: passed {} / 1'.format(1 * (p.register[0] == 6)))
+
+#-----------------------------
+
+def main():
+    print('\nmain program:')
+    data = load()
+    
+    p = Program(*data)
+    p.shortcut()
+    print('part 1: register[0] = {}'.format(p.register[0]))
+
+    p = Program(*data)
+    p.register[0] = 1
+    p.shortcut()
+    print('part 2: register[0] = {}'.format(p.register[0]))
+
+#=============================
 
 if __name__ == '__main__':
 
-# this is the SLOW version, don't run unless you REALLY want to
-#   with open('data/19.txt') as f:
-#       p = Program(*parse([x.rstrip() for x in f.readlines()]))
-#   p.run()
-#   print('register zero: {}'.format(p.register[0]))
-
-    with open('data/19.txt') as f:
-        p = Program(*parse([x.rstrip() for x in f.readlines()]))
-    p.shortcut()
-    print(p)
-    print('register zero: {}\n'.format(p.register[0]))
-
-    with open('data/19.txt') as f:
-        p = Program(*parse([x.rstrip() for x in f.readlines()]))
-    p.register[0] = 1
-    p.shortcut()
-    print(p)
-    print('register zero: {}\n'.format(p.register[0]))
+    print('\nproblem 19')
+    test()
+    main()
+    print()

@@ -3,7 +3,57 @@
 
 import re
 
+#=============================
+
+def load(filename):
+    with open(filename) as f:
+        return parse([x.rstrip() for x in f.readlines()])
+
 #-----------------------------
+
+def parse(data):
+    units_pattern = re.compile(r'(\d+) units')
+    hit_pattern = re.compile(r'(\d+) hit points')
+    weak_pattern = re.compile(r'weak to ([a-z, ]+)')
+    immune_pattern = re.compile(r'immune to ([a-z, ]+)')
+    attack_pattern = re.compile(r'attack that does (\d+) ([a-z]+) damage')
+    initiative_pattern = re.compile(r'initiative (\d+)')
+    immune_system_flag = False
+    infection_flag = False
+    immune_system = []
+    infection = []
+
+    for line in data:
+
+        if 'Immune System:' in line:
+            immune_system_flag = True
+            infection_flag = False
+        elif 'Infection:' in line:
+            immune_system_flag = False
+            infection_flag = True
+        elif units_pattern.search(line) is not None:
+            g = Group()
+            g.units = int(units_pattern.search(line).group(1))
+            g.hit = int(hit_pattern.search(line).group(1))
+            g.att_dam = int(attack_pattern.search(line).group(1))
+            g.att_type = attack_pattern.search(line).group(2)
+            g.initiative = int(initiative_pattern.search(line).group(1))
+
+            if weak_pattern.search(line) is not None:
+                g.weak = weak_pattern.search(line).group(1).split(', ')
+            if immune_pattern.search(line) is not None:
+                g.immune = immune_pattern.search(line).group(1).split(', ')
+
+            if immune_system_flag:
+                g.team = 'Immune System'
+                immune_system.append(g)
+            elif infection_flag:
+                g.team = 'Infection'
+                infection.append(g)
+
+    return immune_system, infection
+
+#=============================
 
 class Group:
 
@@ -53,71 +103,7 @@ class Group:
             if self.damage(self.target) == 0:
                 self.target = None
 
-#-----------------------------
-
-def parse(data):
-    units_pattern = re.compile(r'(\d+) units')
-    hit_pattern = re.compile(r'(\d+) hit points')
-    weak_pattern = re.compile(r'weak to ([a-z, ]+)')
-    immune_pattern = re.compile(r'immune to ([a-z, ]+)')
-    attack_pattern = re.compile(r'attack that does (\d+) ([a-z]+) damage')
-    initiative_pattern = re.compile(r'initiative (\d+)')
-    immune_system_flag = False
-    infection_flag = False
-    immune_system = []
-    infection = []
-
-    for line in data:
-
-        if 'Immune System:' in line:
-            immune_system_flag = True
-            infection_flag = False
-        elif 'Infection:' in line:
-            immune_system_flag = False
-            infection_flag = True
-        elif units_pattern.search(line) is not None:
-            g = Group()
-            g.units = int(units_pattern.search(line).group(1))
-            g.hit = int(hit_pattern.search(line).group(1))
-            g.att_dam = int(attack_pattern.search(line).group(1))
-            g.att_type = attack_pattern.search(line).group(2)
-            g.initiative = int(initiative_pattern.search(line).group(1))
-
-            if weak_pattern.search(line) is not None:
-                g.weak = weak_pattern.search(line).group(1).split(', ')
-            if immune_pattern.search(line) is not None:
-                g.immune = immune_pattern.search(line).group(1).split(', ')
-
-            if immune_system_flag:
-                g.team = 'Immune System'
-                immune_system.append(g)
-            elif infection_flag:
-                g.team = 'Infection'
-                infection.append(g)
-
-    return immune_system, infection
-
-#-----------------------------
-
-def load():
-    with open('data/24.txt') as f:
-        return parse([x.rstrip() for x in f.readlines()])
-
-#-----------------------------
-
-def test():
-    data = [
-        'Immune System:',
-        '17 units each with 5390 hit points (weak to radiation, bludgeoning) with an attack that does 4507 fire damage at initiative 2',
-        '989 units each with 1274 hit points (immune to fire; weak to bludgeoning, slashing) with an attack that does 25 slashing damage at initiative 3',
-        '',
-        'Infection:',
-        '801 units each with 4706 hit points (weak to radiation) with an attack that does 116 bludgeoning damage at initiative 1',
-        '4485 units each with 2961 hit points (immune to radiation; weak to fire, cold) with an attack that does 12 slashing damage at initiative 4'
-    ]
-    return parse(data)
-
-#-----------------------------
+#=============================
 
 def srt(team):
     return sorted(
@@ -160,34 +146,36 @@ def simulate(immune, infection):
 
 #-----------------------------
 
-def run_simulation(function, boost):
-    immune, infection = function()
+def run_simulation(boost, filename):
+    immune, infection = load(filename)
     for g in immune:
         g.att_dam += boost
     simulate(immune, infection)
-    return remaining(immune)
+    return remaining(immune), remaining(infection)
 
 #-----------------------------
 
-def find_optimal_boost(function):
+def find_optimal_boost(filename):
     lower = 0
-    lower_sim = run_simulation(function, lower)
+    lower_sim = run_simulation(lower, filename)[0]
 
     upper = 2
-    upper_sim = run_simulation(function, upper)
+    upper_sim = run_simulation(upper, filename)[0]
 
     while True:
         if lower_sim == 0 and upper_sim == 0:
             lower = upper
             lower_sim = upper_sim
             upper *= 2
-            upper_sim = run_simulation(function, upper)
+            upper_sim = run_simulation(upper, filename)[0]
         else:
             break
 
+    guess = lower
+    guess_sim = lower_sim
     while upper - lower > 2:
         guess = (upper + lower) // 2
-        guess_sim = run_simulation(function, guess)
+        guess_sim = run_simulation(guess, filename)[0]
         
         if guess_sim == 0:
             lower = guess
@@ -201,23 +189,34 @@ def find_optimal_boost(function):
     else:
         return guess, guess_sim
 
+#=============================
+
+def run(filename='data/24.txt'):
+    rem = run_simulation(0, filename)[1]
+    boost, units = find_optimal_boost(filename)
+    return rem, units
+
+#-----------------------------
+
+def test():
+    print('\ntests:')
+    rem, units = run('test/24.txt')
+    print('part 1: passed {} / 1'.format(1 * (rem == 5216)))
+    print('part 2: passed {} / 1'.format(1 * (units == 51)))
+
 #-----------------------------
 
 def main():
+    print('\nmain problem:')
+    rem, units = run()
+    print('part 1: remaining = {}'.format(rem))
+    print('part 2: remaining = {}'.format(units))
 
-    immune, infection = load()
-    simulate(immune, infection)
-    print('remaining {} units: {}'.format(
-        'immune system' * (remaining(immune) != 0) \
-            + 'infection' * (remaining(infection) != 0),
-        remaining(immune + infection)))
-
-    boost, units = find_optimal_boost(load)
-    print('an immunity boost of {} leaves {} remaining immune system units'\
-            .format(boost, units))
-
-#-----------------------------
+#=============================
 
 if __name__ == '__main__':
 
+    print('\nproblem 24')
+    test()
     main()
+    print()

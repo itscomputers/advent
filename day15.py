@@ -3,23 +3,29 @@
 
 from functools import reduce
 
-##############################
+#=============================
+
+def load(filename='data/15.txt'):
+    with open(filename) as f:
+        return [x.rstrip() for x in f.readlines()]
+
+#=============================
 
 def other(kind):
     return 'G' * (kind == 'E') + 'E' * (kind == 'G')
 
-##############################
+#-----------------------------
 
 def nbhd(pos, loc):
     x, y = pos
     return [nb for nb in [(x,y-1), (x,y+1), (x-1,y), (x+1,y)] if nb in loc] 
 
-##############################
+#-----------------------------
 
 def open_nbhd(pos, loc):
     return [nb for nb in nbhd(pos, loc) if loc[nb] is None]
 
-##############################
+#-----------------------------
 
 def dist_to_other(pos, kind, loc):
     circles = [set([pos])]
@@ -41,7 +47,7 @@ def dist_to_other(pos, kind, loc):
         visited = visited | circle
         circles.append(circle)
 
-##############################
+#-----------------------------
 
 def best_path(pos, kind, loc):
     if dist_to_other(pos, kind, loc) is None:
@@ -52,7 +58,7 @@ def best_path(pos, kind, loc):
         return pos
     return min(options, key=lambda t: (t[0], t[1][1], t[1][0]))[1]
 
-##############################
+#=============================
 
 class Creature:
 
@@ -86,7 +92,7 @@ class Creature:
             enemy = min(self.enemies, key=lambda e: (e.hp, e.pos[1], e.pos[0]))
             enemy.hp -= self.ap
 
-##############################
+#=============================
 
 class Cavern:
 
@@ -153,7 +159,7 @@ class Cavern:
                     and creature != self.creatures()[-1][1]:
                 self.partial = True
 
-##############################
+#=============================
 
 def game(data, elf_ap):
     index = 0
@@ -162,31 +168,68 @@ def game(data, elf_ap):
         cavern.advance()
         index += 1
     score = sum(cr.hp for pos, cr in cavern.creatures())
-    outcome = (index - cavern.partial * 1) * score
+    index -= 1 * cavern.partial
+    outcome = index * score
     num_elves = cavern.kinds()['E']
     return index, score, outcome, num_elves, cavern
 
-##############################
+#-----------------------------
 
 def find_elf_attack_power(data):
-    elf_ap = 4
-    num_elves = Cavern(data, elf_ap).kinds()['E']
-    while True:
-        i, s, o, n, c = game(data, elf_ap)
-        if n == num_elves:
-            break
-        elf_ap += 1
-    return elf_ap
+    num_elves = Cavern(data, 3).kinds()['E']
+
+    lower, upper = 3, 3
+    index, score, upper_outcome, upper_elves, cavern = game(data, upper)
+
+    while upper_elves < num_elves:
+            lower = upper
+            upper *= 2
+            index, score, upper_outcome, upper_elves, cavern = game(data, upper)
+
+    while upper - lower > 1:
+        guess = (upper + lower) // 2
+        index, score, guess_outcome, guess_elves, cavern = game(data, guess)
+        
+        if guess_elves < num_elves:
+            lower = guess
+        else:
+            upper = guess
+            upper_elves = guess_elves
+            upper_outcome = guess_outcome
+
+    return upper, upper_outcome
+
+#=============================
+
+def run(data):
+    return game(data, 3)[2], find_elf_attack_power(data)[1]
+
+#-----------------------------
+
+def test():
+    print('\ntests:')
+    part1 = [run(load('test/15-{}.txt'.format(ch))) for ch in 'abcdef']
+    print('part 1: passed {} / 6'.format(
+        sum(map(lambda x, y: 1 * (x[0] == y), 
+            part1, [27730, 36334, 39514, 27755, 28944, 18740]))))
+    part2 = [part1[i][1] for i in [0,2,3,4,5]]
+    print('part 2: passed {} / 5'.format(
+        sum(map(lambda x, y: 1 * (x == y), 
+            part2, [4988, 31284, 3478, 6474, 1140]))))
+
+#-----------------------------
+
+def main():
+    print('\nmain problem:')
+    part1, part2 = run(load())
+    print('part 1: outcome = {}'.format(part1))
+    print('part 2: outcome = {}'.format(part2))
 
 ##############################
 
 if __name__ == '__main__':
 
-    with open('data/15.txt') as f:
-        data = [x.rstrip() for x in f.readlines()]
-
-    print('even match outcome:', game(data, 3)[2])
-    
-    elf_ap = find_elf_attack_power(data)
-    print('with elf attack {}, outcome: {}'\
-            .format(elf_ap, game(data, elf_ap)[2]))
+    print('\nproblem 15')
+    test()
+    main()
+    print()

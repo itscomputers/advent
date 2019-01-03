@@ -4,7 +4,13 @@
 import re
 import math
 
-##############################
+#=============================
+
+def load(filename='data/21.txt'):
+    with open(filename) as f:
+        return parse([x.rstrip() for x in f.readlines()])
+
+#-----------------------------
 
 def parse(data):
     opcodes = []
@@ -18,13 +24,7 @@ def parse(data):
             opcodes.append([opcode, tuple(int(x) for x in args)])
     return pointer, opcodes
 
-##############################
-
-def load():
-    with open('data/21.txt') as f:
-        return parse([x.rstrip() for x in f.readlines()])
-
-##############################
+#=============================
 
 def addr(r_, a, b, c):
     r = [x for x in r_]
@@ -106,7 +106,7 @@ def eqrr(r_, a, b, c):
     r[c] = 1 * (r[a] == r[b])
     return r
 
-##############################
+#=============================
 
 class Program:
 
@@ -124,7 +124,7 @@ class Program:
             return 'state: {}\nip: {}'\
                 .format(self.register, self.ip)
 
-    ##########################
+    #-------------------------
 
     def advance(self):
         opcode, args = self.opcodes[self.ip]
@@ -132,19 +132,19 @@ class Program:
         self.register = eval(opcode)(self.register, *args)
         self.ip = self.register[self.ptr] + 1
 
-    ##########################
+    #-------------------------
 
     def run_to(self, ip):
         while self.ip != ip:
             self.advance()
 
-    ##########################
+    #-------------------------
 
     def loop18(self):
         if self.ip == 18 and 256 * (self.register[3] + 1) <= self.register[5]:
             self.register[3] = self.register[5] // 256
 
-    ##########################
+    #-------------------------
 
     def loop13(self):
         if self.ip == 13 and 256 <= self.register[5]:
@@ -152,7 +152,7 @@ class Program:
             self.loop18()
             self.run_to(13)
             
-    ##########################
+    #-------------------------
 
     def next_register_one(self):
         self.run_to(13)
@@ -161,23 +161,31 @@ class Program:
         self.run_to(28)
         return self.register[1]
 
-##############################
+#=============================
 
-if __name__ == '__main__':
+def main():
 
+    print('\nmain program:')
     data = load()
     p = Program(0, *data)
     
-    while p.ip != 28:
-        p.advance()
+    p.run_to(28)
     vals = [p.register[1]]
-    
+    print('part 1: register[0] = {}'.format(vals[0]))
+
     while True:
         v = p.next_register_one()
         if v in vals:
             break
         else:
             vals.append(v)
+    print('part 2: register[0] = {}'.format(vals[-1]))
 
-    print(vals[0])
-    print(vals[-1])
+##############################
+
+if __name__ == '__main__':
+
+    print('\nproblem 21')
+    print('\nno tests')
+    main()
+    print()

@@ -4,6 +4,13 @@
 import re
 from functools import reduce
 from itertools import product
+from heapq import heappush, heappop
+
+#=============================
+
+def load(filename='data/22.txt'):
+    with open(filename) as f:
+        return parse([x.rstrip() for x in f.readlines()])
 
 #-----------------------------
 
@@ -16,30 +23,7 @@ def parse(data):
                 re.search(r'target: (\d+),(\d+)', line).group(1,2)))
     return depth, target
 
-#-----------------------------
-
-def load():
-    with open('data/22.txt') as f:
-        return parse([x.rstrip() for x in f.readlines()])
-
-#-----------------------------
-
-def main(depth, target):
-    mul_x = 16807
-    mul_y = 48271
-    mod = 20183
-    mp = build_map(depth, target, mul_x, mul_y, mod)
-    mp[target] = (depth, depth % 3)
-
-    risk = sum(x[1] for x in mp.values())
-    print('risk: {}'.format(risk))
-
-    mp = extend_map(50, 50, mp, depth, mul_x, mul_y, mod)
-    d_mp = double_map(mp)
-    
-    print('shortest path to target: {}'.format(a_star(d_mp, target)))
-
-#-----------------------------
+#=============================
 
 def build_map(depth, target, mul_x, mul_y, mod):
     mp = dict()
@@ -118,24 +102,27 @@ def compatible(typ, tool):
 
 #-----------------------------
 
-def nb_dist(pt, nb):
+def nb_dist(pt, nb, d_mp):
     if pt[:2] == nb[:2]:
         return 7
     elif pt[2] == nb[2]:
         return 1
+    elif (*pt[:2], nb[2]) in d_mp or (*nb[:2], pt[2]) in d_mp:
+        return 8
+    else:
+        return 13
 
 #-----------------------------
 
 def L1_dist(pt, nb):
-    return sum(map(lambda t: abs(t[1] - t[0]), zip(pt[:2], nb[:2])))
+    return sum(map(lambda x, y: abs(x - y), pt[:2], nb[:2]))
 
 #-----------------------------
 
 def nbhd(pt, d_mp):
-    x, y, z = pt
-    return [nb for nb in d_mp \
-            if nb in [(x, y-1, z), (x, y+1, z), (x-1, y, z), (x+1, y, z)] \
-            or nb[:2] == (x, y)]
+    x, y = pt[:2]
+    return [nb for nb in d_mp if nb != pt \
+            and nb[:2] in [(x, y-1), (x, y+1), (x-1, y), (x+1, y), (x, y)]]
 
 #-----------------------------
 
@@ -143,33 +130,70 @@ def a_star(d_mp, target):
     start = (0, 0, 't')
     end = (*target, 't')
 
-    open_set = set([start])
+    g = {start : 0}
+    f = {start : L1_dist(start, end)}
+
     closed_set = set()
+    open_set = [] 
+    heappush(open_set, (f[start], start))
 
-    g_score = {start : 0}
-    f_score = {start : L1_dist(start, end)}
+    while open_set:
+        priority, curr = heappop(open_set)
+        if curr in f and priority == f[curr]:
+            if curr == end:
+                break
+            closed_set.add(curr)
+
+            for nb in nbhd(curr, d_mp):
+                if nb not in closed_set:
+                    new_dist = g[curr] + nb_dist(curr, nb, d_mp)
+                    if nb not in g or new_dist < g[nb]:
+                        g[nb] = new_dist
+                        f[nb] = new_dist + L1_dist(nb, end) + \
+                                        7 * (nb[2] != 't')
+                        heappush(open_set, (f[nb], nb))
+                
+    return g[end]
+
+#=============================
+
+def args():
+    return 16807, 48271, 20183
+
+#-----------------------------
+
+def run(depth, target, extend_x, extend_y):
+    mp = build_map(depth, target, *args())
+    mp[target] = (depth, depth % 3)
+    risk = sum(x[1] for x in mp.values())
+
+    mp = extend_map(extend_x, extend_y, mp, depth, *args())
+    d_mp = double_map(mp)
+    minutes = a_star(d_mp, target)
     
-    while open_set != set() and end not in closed_set:
-        curr = min((pt for pt in open_set if pt in f_score), key=f_score.get)
-        open_set.remove(curr)
-        closed_set.add(curr)
+    return risk, minutes
 
-        for nb in nbhd(curr, d_mp):
-            if nb not in closed_set:
-                dist = g_score[curr]
-                n_dist = nb_dist(curr, nb)
-                
-                if nb not in open_set:
-                    open_set.add(nb)
-                
-                if nb not in g_score or g_score[nb] > dist + n_dist:
-                    g_score[nb] = dist + n_dist
-                    f_score[nb] = g_score[nb] + L1_dist(nb, end)
+#-----------------------------
 
-    return g_score[end]
+def test(extend_x, extend_y):
+    print('\ntests:')
+    risk, minutes = run(*load('test/22.txt'), extend_x, extend_y)
+    print('part 1: passed {} / 1'.format(1 * (risk == 114)))
+    print('part 2: passed {} / 1'.format(1 * (minutes == 45)))
 
-##############################
+#-----------------------------
+
+def main(extend_x, extend_y):
+    print('\nmain problem:')
+    risk, minutes = run(*load(), extend_x, extend_y)
+    print('part 1: risk = {}'.format(risk))
+    print('part 2: minutes = {}'.format(minutes))
+
+#=============================
 
 if __name__ == '__main__':
 
-    main(*load())
+    print('\nproblem 22')
+    test(5, 5)
+    main(35, 15)
+    print()

@@ -58,26 +58,34 @@ def process_claims(data):
 
 #=============================
 
+def run(data):
+    conflict_free, claims = process_claims(data)
+    part1 = sum(1 for ids in claims.values() if len(ids) > 1)
+    assert(len(conflict_free) == 1)
+    part2 = conflict_free[0]
+    return part1, part2
+
+#-----------------------------
+
 def test():
-    conflict_free, claims = process_claims(load('test/03.txt'))
-    return len([ids for ids in claims.values() if len(ids) > 1]) == 4, \
-            (len(conflict_free) == 1 and conflict_free[0] == 3)
+    print('\ntests:')
+    part1, part2 = run(load('test/03.txt'))
+    print('part 1: passed {} / 1'.format(1 * (part1 == 4)))
+    print('part 2: passed {} / 1'.format(1 * (part2 == 3)))
 
 #-----------------------------
 
 def main():
-    conflict_free, claims = process_claims(load())
     print('\nmain problem:')
-    print('part 1: number of squares in conflict = {}'.format(
-        len([ids for ids in claims.values() if len(ids) > 1])))
-    assert( len(conflict_free) == 1)
-    print('part 2: ID for conflict-free claim = {}'.format(conflict_free[0]))
+    part1, part2 = run(load())
+    print('part 1: squares = {}'.format(part1))
+    print('part 2: id = {}'.format(part2))
 
 #=============================
 
 if __name__ == '__main__':
-    test_one, test_two = test()
-    print('part 1 tests: passed {} / 1'.format(1 * test_one))
-    print('part 2 tests: passed {} / 1'.format(1 * test_two)) 
 
+    print('\nproblem 3')
+    test()
     main()
+    print()

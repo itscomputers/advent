@@ -49,22 +49,26 @@ def min_length(s):
 #=============================
 
 def test():
+    print('\ntests:')
     string = load('test/05.txt')
-    return simplified_length(string) == 10, min_length(string) == 4
+    print('part 1: passed {} / 1'.format(
+        1 * (simplified_length(string) == 10)))
+    print('part 2: passed {} / 1'.format(
+        1 * (min_length(string) == 4)))
 
 #-----------------------------
 
 def main():
-    string = load()
     print('\nmain problem:')
+    string = load()
     print('part 1: polymer length = {}'.format(simplified_length(string)))
     print('part 2: shortest polymer length = {}'.format(min_length(string)))
 
 #=============================
 
 if __name__ == '__main__':
-    test_one, test_two = test()
-    print('part 1 tests: passed {} / 1'.format(1 * test_one))
-    print('part 2 tests: passed {} / 1'.format(1 * test_two))
-    
+
+    print('\nproblem 5')
+    test()
     main()
+    print()
